@@ -1,18 +1,32 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+
 const UserSchema = require("../model/userModel.js");
 
 exports.register = async (req, res) => {
   const { fullName, password, email, phone } = req.body;
 
+  const user = await UserSchema.findOne({ email });
+  if (user) {
+    res.status(403).json({
+      success: false,
+      message: "User already exist!",
+    });
+
+    return;
+  }
+
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
   const newuser = await UserSchema.create({
     fullName,
-    password,
+    password: hashedPassword,
     email,
     phone,
   });
 
-  res.sendStatus(201).json({
+  res.status(201).json({
     success: true,
     user: newuser,
   });
