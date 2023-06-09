@@ -26,8 +26,14 @@ exports.register = async (req, res) => {
     phone,
   });
 
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
   res.status(201).json({
     success: true,
+    message: "Registration successful!",
+    token,
     user: newuser,
   });
 };
